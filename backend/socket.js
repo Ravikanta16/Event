@@ -24,6 +24,11 @@ const handleConnection = (socket,io) => {
     io.emit("participant_count", {eventId,count:  currentEventSet.size});
   });
 
+  rooms.forEach((value,key) => {
+    console.log({eventId:key,count: rooms.get(key).size});
+    io.emit("participant_count", {eventId:key,count: rooms.get(key).size});
+  });
+
   socket.on("disconnect", () => {
     console.log("a user disconnected");
   });

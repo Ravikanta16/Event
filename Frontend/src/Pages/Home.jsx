@@ -19,7 +19,7 @@ const Home = () => {
     const [eventId, setEventId] = useState('');
     const [joinedEvents, setJoinedEvents] = useState({});
     const {userData,setUserData}=useContext(UserDataContext)
-
+    const navigate=useNavigate()
     useEffect(() => {
         if (userData?.username) {
             setUserId(userData.username);
@@ -44,22 +44,24 @@ const Home = () => {
     const setupSocketListeners = () => {
         socket.on('connect', () => {
             console.log('Connected!');
-            statusDiv.textContent = 'Connected! Socket ID: ' + socket.id;
+          
         });
 
         socket.on('connect_error', (error) => {
             console.error('Connection Error:', error);
-            statusDiv.textContent = 'Connection Error: ' + error.message;
+      
         });
 
         socket.on('disconnect', (reason) => {
             console.log('Disconnected:', reason);
-            statusDiv.textContent = 'Disconnected: ' + reason;
         });
 
         socket.on('participant_count', (updatedCounts) => {
             console.log(updatedCounts);
-            setParticipantCounts(updatedCounts);
+            const data = {
+                [updatedCounts.eventId]:updatedCounts.count
+            }
+            setParticipantCounts((prev) => ({ ...prev, ...data }));
             console.log(participantCounts);
         });
     };
@@ -91,9 +93,10 @@ const Home = () => {
     };
 
     useEffect(() => {
-        console.log(joinedEvents,"jhbjhb");
-    
-    }, [joinedEvents]);
+       if(!userData?.username){
+        navigate('/login')
+       }
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -128,7 +131,7 @@ const Home = () => {
                             <p className="text-gray-600">{new Date(event.time).toLocaleDateString()}</p>
                             <p className="mt-2">{event.description}</p>
                             <p className="mt-2 text-blue-500">
-                                Attendees: {participantCounts[eventId] || 0}
+                                Attendees: {participantCounts[event.title] || 0}
                             </p>
                             <div className="mt-4 flex justify-between">
                                 <button
@@ -136,9 +139,9 @@ const Home = () => {
                                     onClick={(e) => {
                                         handleJoin(e,event.title, userId)}
                                     }
-                                    disabled={joinedEvents[eventId]}
+                                    disabled={joinedEvents[event.title]}
                                 >
-                                    {joinedEvents[eventId] ? 'Joined' : 'Join'}
+                                    {joinedEvents[event.title] ? 'Joined' : 'Join'}
                                 </button>
                                 <button
                                     className="bg-green-500 text-white p-2 rounded"
