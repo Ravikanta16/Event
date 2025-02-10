@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <!-- Make sure to use the latest Socket.IO client version -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <div id="status">Connecting...</div>
+    <input type="text" id="userId" placeholder="User ID">
+    <input type="text" id="eventId" placeholder="Event ID">
+    <button onclick="joinEvent()">Join Event</button>
+    <p id="count">Count: </p>
+    <script>
+        // Add connection status to page
+        const statusDiv = document.getElementById('status');
+        
+        // Enable debug logging
+        localStorage.debug = '*';
+        
+        const socket = io('http://localhost:3000', {
+            transports: ['websocket', 'polling'],
+            reconnection: true
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected!');
+            statusDiv.textContent = 'Connected! Socket ID: ' + socket.id;
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Connection Error:', error);
+            statusDiv.textContent = 'Connection Error: ' + error.message;
+        });
+
+        socket.on('disconnect', (reason) => {
+            console.log('Disconnected:', reason);
+            statusDiv.textContent = 'Disconnected: ' + reason;
+        });
+
+        socket.on('participant_count', (events) => {
+            console.log('Participant Count:', events);
+            const eventId = document.getElementById('eventId').value;
+            if(eventId){
+                const event = events[eventId];
+                if(event === eventId){
+                    document.getElementById('count').textContent = 'Participant Count: ' + events.count;
+                }
+            }
+        });
+
+        const joinEvent = () => {
+            const userId = document.getElementById('userId').value;
+            const eventId = document.getElementById('eventId').value;
+            socket.emit('join-event', eventId, userId);
+        }
+    </script>
+</body>
+</html>

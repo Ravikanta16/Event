@@ -1,0 +1,16 @@
+{
+  "name": "event-mgmt",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --env-file=.env index.js"
+  },
+  "author": "ravikanta",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.2",
+    "mongoose": "^8.10.0",
+    "socket.io": "^4.8.1"
+  }
+}
